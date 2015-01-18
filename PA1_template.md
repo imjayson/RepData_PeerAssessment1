@@ -34,18 +34,25 @@ First, we need to find the mean of each time interval across all days
 agg2 <- aggregate(stepsData$steps, by=list(stepsData$interval), FUN=mean, na.rm=TRUE)
 ```
 
-Next, we will need to generate the labels for each time period
+Next, we will need to generate the labels for each time period and the decimal representation of time
 
 ```r
 timePeriodLabels <- gsub("^([0-9]{2})([0-9]{2})$", '\\1:\\2', sprintf("%04d",stepsData[1:288,]$interval))
+minutes <- sapply(strsplit(timePeriodLabels,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]*60+x[2]
+    }
+)
 agg2$intervalLabel <- timePeriodLabels
+agg2$minutes <- minutes
 ```
 
 Then, we plot the timeline
 
 ```r
-plot(agg2$Group.1, agg2$x, ylab="Steps", xlab="Time Period", type="l", xaxt="n")
-axis(1, at=agg2$Group.1, labels=timePeriodLabels)
+plot(agg2$minutes, agg2$x, ylab="Steps", xlab="Time Period", type="l", xaxt="n")
+axis(1, at=agg2$minutes, labels=timePeriodLabels, tck=0)
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
@@ -107,6 +114,7 @@ Aggregate data to weekend and weekdays
 
 ```r
 agg4 <- aggregate(stepsDataNoNa$steps, by=list(stepsDataNoNa$interval,stepsDataNoNa$day), FUN=mean, na.rm=TRUE)
+agg4$minutes <- minutes
 weekdays <- agg4[agg4$Group.2=="weekday",]
 weekends <- agg4[agg4$Group.2=="weekend",]
 ```
@@ -115,10 +123,10 @@ Plot the 2 time series
 
 ```r
 par(mfrow=c(2,1)) 
-plot(weekdays$Group.1, weekdays$x, main="Weekdays", ylab="Steps", xlab="Time Period", type="l", xaxt="n")
-axis(1, at=weekdays$Group.1, labels=timePeriodLabels)
-plot(weekends$Group.1, weekends$x, main="Weekends", ylab="Steps", xlab="Time Period", type="l", xaxt="n")
-axis(1, at=weekends$Group.1, labels=timePeriodLabels)
+plot(weekdays$minutes, weekdays$x, main="Weekdays", ylab="Steps", xlab="Time Period", type="l", xaxt="n")
+axis(1, at=weekdays$minutes, labels=timePeriodLabels, tck=0)
+plot(weekends$minutes, weekends$x, main="Weekends", ylab="Steps", xlab="Time Period", type="l", xaxt="n")
+axis(1, at=weekends$minutes, labels=timePeriodLabels, tck=0)
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-14-1.png) 
